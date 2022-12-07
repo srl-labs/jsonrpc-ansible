@@ -1,0 +1,25 @@
+- name: Get state data from SR Linux
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Get version and hostname
+      ansible.builtin.uri:
+        url: http://{{inventory_hostname}}/jsonrpc
+        url_username: admin
+        url_password: NokiaSrl1!
+        method: POST
+        body:
+          jsonrpc: "2.0"
+          id: 1
+          method: get
+          params:
+            datastore: state
+            commands:
+              - path: /system/name/host-name
+              - path: /system/information/version
+        body_format: json
+      register: get_result
+
+    - ansible.builtin.debug:
+        msg: "Host {{get_result.json.result[0]}} runs {{get_result.json.result[1]}} version"
