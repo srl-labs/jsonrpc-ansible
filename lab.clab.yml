@@ -1,0 +1,14 @@
+name: 2srl
+
+topology:
+  nodes:
+    srl1:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux:22.11.1
+    srl2:
+      kind: nokia_srlinux
+      image: ghcr.io/nokia/srlinux:22.11.1
+  links:
+    - endpoints:
+        - "srl1:e1-1"
+        - "srl2:e1-1"
