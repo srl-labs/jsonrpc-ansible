@@ -1,0 +1,37 @@
+{
+  "interface": [
+    {
+      "name": "ethernet-1/1",
+      "description": "ethernet-1/1 interface on {{inventory_hostname}} node",
+      "admin-state": "enable",
+      "subinterface": [
+        {
+          "index": 0,
+          "admin-state": "enable",
+          "ipv4": {
+            "address": [
+              {
+                "ip-prefix": "{{e1_1_ip}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "lo0",
+      "description": "loopback interface on {{inventory_hostname}} node",
+      "admin-state": "enable"
+    }
+  ],
+  "network-instance": [
+    {
+      "name": "default",
+      "interface": [
+        {
+          "name": "ethernet-1/1.0"
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,9 @@
-- name: Get state data from SR Linux
+- name: Configuration backup
   hosts: all
   connection: local
   gather_facts: no
   tasks:
-    - name: Get version and hostname
+    - name: Backup running configuration
       ansible.builtin.uri:
         url: http://{{inventory_hostname}}/jsonrpc
         url_username: admin
@@ -14,12 +14,13 @@
           id: 1
           method: get
           params:
-            datastore: state
+            datastore: running
             commands:
-              - path: /system/name/host-name
-              - path: /system/information/version
+              - path: /
         body_format: json
       register: get_result
 
-    - ansible.builtin.debug:
-        msg: "Host {{get_result.json.result[0]}} runs {{get_result.json.result[1]}} version"
+    - name: Save fetched configs
+      ansible.builtin.copy:
+        content: "{{get_result.json.result[0] | to_nice_json}}"
+        dest: "{{playbook_dir}}/{{inventory_hostname}}.cfg.json"

@@ -1,2 +1,4 @@
 clab-*
 *.yml.bak
+task02/*.json
+task06/*.txt

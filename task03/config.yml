@@ -1,0 +1,65 @@
+- name: Configuration
+  hosts: all
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Various configuration tasks
+      ansible.builtin.uri:
+        url: http://{{inventory_hostname}}/jsonrpc
+        url_username: admin
+        url_password: NokiaSrl1!
+        method: POST
+        body:
+          jsonrpc: "2.0"
+          id: 1
+          method: set
+          params:
+            commands:
+              - action: replace
+                path: /interface[name=mgmt0]/description:{{inventory_hostname}} management interface
+              - action: update
+                path: /system/information
+                value:
+                  location: the Netherlands
+                  contact: Roman Dodin
+              - action: update
+                path: /
+                value: "{{lookup('ansible.builtin.template', '{{playbook_dir}}/iface-cfg.json.j2') }}"
+        body_format: json
+      register: set_result
+
+    - name: Stop if request contains error
+      ansible.builtin.fail:
+        msg: "Error: {{set_result.json.error.message}}"
+      when: set_result.json.error is defined
+
+    - name: Verify configuration set
+      ansible.builtin.uri:
+        url: http://{{inventory_hostname}}/jsonrpc
+        url_username: admin
+        url_password: NokiaSrl1!
+        method: POST
+        body:
+          jsonrpc: "2.0"
+          id: 2
+          method: get
+          params:
+            datastore: state
+            commands:
+              - path: /interface[name=mgmt0]/description
+              - path: /system/information
+              - path: /interface[name=ethernet-1/1]/description
+              - path: /interface[name=lo0]/description
+        body_format: json
+      register: get_result
+
+    - ansible.builtin.debug:
+        msg:
+          - "mgmt0 description is: {{get_result.json.result[0]}}"
+          - "location is: {{get_result.json.result[1].location}}"
+          - "contact is: {{get_result.json.result[1].contact}}"
+          - "ethernet-1/1 description is: {{get_result.json.result[2]}}"
+          - "loopback0 description is: {{get_result.json.result[3]}}"
+
+    # - ansible.builtin.debug:
+    #     msg: "{{get_result.json.result[2].}}"
