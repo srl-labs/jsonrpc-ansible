@@ -1,27 +1,14 @@
 - name: Get state and config data from SR Linux
   hosts: all
-  connection: local
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: Get hostname, version and tls-profile
-      ansible.builtin.uri:
-        url: http://{{inventory_hostname}}/jsonrpc
-        url_username: admin
-        url_password: NokiaSrl1!
-        method: POST
-        body:
-          jsonrpc: "2.0"
-          id: 1
-          method: get
-          params:
-            datastore: state
-            commands:
-              - path: /system/name/host-name
-              - path: /system/information/version
-              - path: /system/json-rpc-server/network-instance[name=mgmt]/https/tls-profile
-                datastore: running
-        body_format: json
+      nokia.srlinux.get:
+        paths:
+          - path: /system/name/host-name
+          - path: /system/information/version
+          - path: /system/json-rpc-server/network-instance[name=mgmt]/https/tls-profile
       register: get_result
 
     - ansible.builtin.debug:
-        msg: "Host {{get_result.json.result[0]}} runs {{get_result.json.result[1]}} version and json-rpc server uses '{{get_result.json.result[2]}}' TLS profile"
+        msg: "Host {{get_result.result[0]}} runs {{get_result.result[1]}} version and json-rpc server uses '{{get_result.result[2]}}' TLS profile"

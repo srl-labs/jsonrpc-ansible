@@ -1,47 +1,20 @@
 - name: Replace operation
   hosts: all
-  connection: local
-  gather_facts: no
+  gather_facts: false
   tasks:
-    - name: Replace partial config
-      ansible.builtin.uri:
-        url: http://{{inventory_hostname}}/jsonrpc
-        url_username: admin
-        url_password: NokiaSrl1!
-        method: POST
-        body:
-          jsonrpc: "2.0"
-          id: 1
-          method: set
-          params:
-            commands:
-              - action: replace
-                path: /
-                value: "{{lookup('ansible.builtin.template', '{{playbook_dir}}/golden.cfg.json.j2') }}"
-        body_format: json
+    - name: Replace entire config
+      nokia.srlinux.config:
+        replace:
+          - path: /
+            value: "{{lookup('ansible.builtin.template', '{{playbook_dir}}/golden.cfg.json.j2') }}"
       register: set_result
 
-    - name: Stop if request contains error
-      ansible.builtin.fail:
-        msg: "Error: {{set_result.json.error.message}}"
-      when: set_result.json.error is defined
-
     - name: Verify configuration set
-      ansible.builtin.uri:
-        url: http://{{inventory_hostname}}/jsonrpc
-        url_username: admin
-        url_password: NokiaSrl1!
-        method: POST
-        body:
-          jsonrpc: "2.0"
-          id: 2
-          method: get
-          params:
+      nokia.srlinux.get:
+        paths:
+          - path: /system/information/location
             datastore: state
-            commands:
-              - path: /system/information/location
-        body_format: json
       register: get_result
 
     - ansible.builtin.debug:
-        msg: "Location from golden config: {{get_result.json.result[0]}}"
+        msg: "Location from golden config: {{get_result.result[0]}}"

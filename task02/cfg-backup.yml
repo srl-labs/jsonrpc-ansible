@@ -1,26 +1,15 @@
 - name: Configuration backup
   hosts: all
-  connection: local
-  gather_facts: no
+  gather_facts: false
   tasks:
     - name: Backup running configuration
-      ansible.builtin.uri:
-        url: http://{{inventory_hostname}}/jsonrpc
-        url_username: admin
-        url_password: NokiaSrl1!
-        method: POST
-        body:
-          jsonrpc: "2.0"
-          id: 1
-          method: get
-          params:
+      nokia.srlinux.get:
+        paths:
+          - path: /
             datastore: running
-            commands:
-              - path: /
-        body_format: json
       register: get_result
 
     - name: Save fetched configs
       ansible.builtin.copy:
-        content: "{{get_result.json.result[0] | to_nice_json}}"
+        content: "{{get_result.result[0] | to_nice_json}}"
         dest: "{{playbook_dir}}/{{inventory_hostname}}.cfg.json"

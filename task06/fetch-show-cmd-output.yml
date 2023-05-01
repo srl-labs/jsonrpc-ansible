@@ -1,37 +1,21 @@
 - name: Operational commands
   hosts: all
-  connection: local
-  gather_facts: no
+  gather_facts: false
   vars:
     commands:
       - show version
       - show platform chassis
   tasks:
     - name: Fetch show commands output
-      ansible.builtin.uri:
-        url: http://{{inventory_hostname}}/jsonrpc
-        url_username: admin
-        url_password: NokiaSrl1!
-        method: POST
-        body:
-          jsonrpc: "2.0"
-          id: 1
-          method: cli
-          params:
-            commands: "{{commands}}"
-            output-format: text
-        body_format: json
+      nokia.srlinux.cli:
+        commands: "{{commands}}"
+        output_format: text
       register: cli_result
-
-    - name: Stop if request contains error
-      ansible.builtin.fail:
-        msg: "Error: {{cli_result.json.error.message}}"
-      when: cli_result.json.error is defined
 
     - name: Save fetched show outputs
       ansible.builtin.copy:
         content: "{{item}}"
         dest: '{{playbook_dir}}/{{inventory_hostname}}.{{ commands[idx] | replace(" ", "-") | regex_replace("[^A-Za-z0-9\-]", "") }}.txt'
-      loop: "{{cli_result.json.result}}"
+      loop: "{{cli_result.result}}"
       loop_control:
         index_var: idx
