@@ -4,7 +4,7 @@ docker run --rm -it \
     -v $(pwd):/ansible \
     -v ~/.ssh:/root/.ssh \
     -v /etc/hosts:/etc/hosts \
-    ghcr.io/hellt/ansible:6.6.0 ansible-playbook -i inventory.yml $@
+    ghcr.io/hellt/ansible:2.13.8 ansible-playbook -i inventory.yml $@
 
 # to test out container 
 # docker run --rm -it \
@@ -12,4 +12,4 @@ docker run --rm -it \
 #     -v ~/.ssh:/root/.ssh \
 #     -v /etc/hosts:/etc/hosts \
 #     --entrypoint bash \
-#     ghcr.io/hellt/ansible:6.6.0
+#     ghcr.io/hellt/ansible:2.13.8

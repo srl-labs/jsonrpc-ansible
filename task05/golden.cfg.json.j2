@@ -544,12 +544,38 @@
           },
           {
             "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming PIM packets",
+            "match": {
+              "protocol": "pim"
+            },
+            "sequence-id": 380
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming RADIUS AAA packets",
+            "match": {
+              "protocol": "udp",
+              "source-port": {
+                "range": {
+                  "end": 1813,
+                  "start": 1812
+                }
+              }
+            },
+            "sequence-id": 390
+          },
+          {
+            "action": {
               "drop": {
                 "log": true
               }
             },
             "description": "Drop all else",
-            "sequence-id": 380
+            "sequence-id": 400
           }
         ],
         "statistics-per-entry": true
@@ -1104,11 +1130,79 @@
             "action": {
               "accept": {}
             },
-            "description": "Accept incoming IGMP packets",
+            "description": "Accept incoming MLDv1 report messages",
             "match": {
-              "next-header": "igmp"
+              "icmp6": {
+                "type": "mld-report"
+              },
+              "next-header": "icmp6"
             },
             "sequence-id": 380
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming MLDv2 report messages",
+            "match": {
+              "icmp6": {
+                "type": "mld-v2"
+              },
+              "next-header": "icmp6"
+            },
+            "sequence-id": 390
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming MLDv1 done messages",
+            "match": {
+              "icmp6": {
+                "type": "mld-done"
+              },
+              "next-header": "icmp6"
+            },
+            "sequence-id": 400
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming MLD query messages",
+            "match": {
+              "icmp6": {
+                "type": "mld-query"
+              },
+              "next-header": "icmp6"
+            },
+            "sequence-id": 410
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming PIM messages",
+            "match": {
+              "next-header": "pim"
+            },
+            "sequence-id": 420
+          },
+          {
+            "action": {
+              "accept": {}
+            },
+            "description": "Accept incoming RADIUS AAA messages",
+            "match": {
+              "next-header": "udp",
+              "source-port": {
+                "range": {
+                  "end": 1813,
+                  "start": 1812
+                }
+              }
+            },
+            "sequence-id": 430
           },
           {
             "action": {
@@ -1117,7 +1211,7 @@
               }
             },
             "description": "Drop all else",
-            "sequence-id": 390
+            "sequence-id": 440
           }
         ],
         "statistics-per-entry": true
@@ -1149,9 +1243,11 @@
           "admin-state": "enable",
           "index": 0,
           "ipv4": {
+            "admin-state": "enable",
             "srl_nokia-interfaces-ip-dhcp:dhcp-client": {}
           },
           "ipv6": {
+            "admin-state": "enable",
             "srl_nokia-interfaces-ip-dhcp:dhcp-client": {}
           }
         }
@@ -1184,7 +1280,10 @@
         "authentication-method": [
           "local"
         ],
-        "idle-timeout": 7200
+        "idle-timeout": 7200,
+        "linuxadmin-user": {
+          "password": "$6$D.Ow5ZfE4Dxk1kX$2ZWI4CPp22cMrPR1FBD36lQz/0BNa9qm84TbpQr.Nybx2A8ojxGTQQKnDnOZTN6xg4z8DywkqKC.9gykQ464Y."
+        }
       },
       "server-group": [
         {
@@ -1201,6 +1300,12 @@
           "name": "mgmt",
           "tls-profile": "clab-profile"
         }
+      ],
+      "rate-limit": 65000,
+      "trace-options": [
+        "request",
+        "response",
+        "common"
       ],
       "unix-socket": {
         "admin-state": "enable"
@@ -1378,7 +1483,7 @@
       ]
     },
     "srl_nokia-system-banner:banner": {
-      "login-banner": "................................................................\n:                  Welcome to Nokia SR Linux!                  :\n:              Open Network OS for the NetOps era.             :\n:                                                              :\n:    This is a freely distributed official container image.    :\n:                      Use it - Share it                       :\n:                                                              :\n: Get started: https://learn.srlinux.dev                       :\n: Container:   https://go.srlinux.dev/container-image          :\n: Docs:        https://doc.srlinux.dev/22-11                   :\n: Rel. notes:  https://doc.srlinux.dev/rn22-11-1               :\n: YANG:        https://yang.srlinux.dev/v22.11.1               :\n: Discord:     https://go.srlinux.dev/discord                  :\n: Contact:     https://go.srlinux.dev/contact-sales            :\n................................................................\n"
+      "login-banner": "................................................................\n:                  Welcome to Nokia SR Linux!                  :\n:              Open Network OS for the NetOps era.             :\n:                                                              :\n:    This is a freely distributed official container image.    :\n:                      Use it - Share it                       :\n:                                                              :\n: Get started: https://learn.srlinux.dev                       :\n: Container:   https://go.srlinux.dev/container-image          :\n: Docs:        https://doc.srlinux.dev/23-3                    :\n: Rel. notes:  https://doc.srlinux.dev/rn23-3-1                :\n: YANG:        https://yang.srlinux.dev/v23.3.1                :\n: Discord:     https://go.srlinux.dev/discord                  :\n: Contact:     https://go.srlinux.dev/contact-sales            :\n................................................................\n"
     },
     "srl_nokia-system-info:information": {
       "location": "CONTAINERLAB"
@@ -1387,8 +1492,8 @@
       "server-profile": [
         {
           "authenticate-client": false,
-          "certificate": "-----BEGIN CERTIFICATE-----\nMIID+jCCAuKgAwIBAgIUUxTswdR9VRly/qjEiHQv1WLRnjcwDQYJKoZIhvcNAQEL\nBQAwXjELMAkGA1UEBhMCQkUxEDAOBgNVBAcTB0FudHdlcnAxDjAMBgNVBAoTBU5v\na2lhMRYwFAYDVQQLEw1Db250YWluZXIgbGFiMRUwEwYDVQQDEwwyc3JsIFJvb3Qg\nQ0EwHhcNMjIxMjA3MTAzMDAwWhcNMjMxMjA3MTAzMDAwWjBeMQswCQYDVQQGEwJC\nRTEQMA4GA1UEBxMHQW50d2VycDEOMAwGA1UEChMFTm9raWExFjAUBgNVBAsTDUNv\nbnRhaW5lciBsYWIxFTATBgNVBAMTDHNybDEuMnNybC5pbzCCASIwDQYJKoZIhvcN\nAQEBBQADggEPADCCAQoCggEBAPCw5J7iuJOt2x6HgNDYQDJeVcU4xH/Vc38s20mL\noV/Q72KIcGjoV2lcBGcBF+UT2JHxzUdOW3y2/aek4jUSDrVRIrOZcSjGYLhzD4Ds\nFCrWU/Y8HzACy2BnLzo15PrmfKPK2laoc8lTy+fOw84mLWT9hQ1UBCS9yas74doj\n9aqderaF3vweejOrCztdetw7Q24sxh0vJNFRpabIopNzivqmLRiEI2QkcM4slHKk\nrrU+5VMIfPjt1cicyRzNeTZZEaq7j2ulkhyCl7Gs0SqyKgpp6fuQN2VHuJHtVdV4\nJ0nkhKl3EjEPOdn8LvrOoAve8D6zddKRC7jkQpWn1MxquhECAwEAAaOBrzCBrDAO\nBgNVHQ8BAf8EBAMCBaAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMAwG\nA1UdEwEB/wQCMAAwHQYDVR0OBBYEFA8lrYV1L18/Oy34VrmGBXofZHrbMB8GA1Ud\nIwQYMBaAFLOM/U+T2bHvm9QbMFKY9+EG1s6ZMC0GA1UdEQQmMCSCBHNybDGCDmNs\nYWItMnNybC1zcmwxggxzcmwxLjJzcmwuaW8wDQYJKoZIhvcNAQELBQADggEBAGkn\nOz9B94Th+6cS0bZLKFKTQhhBaTOeLpnRvRUqKLK8M/wNFt5V66gEf1VlFg2QX5yC\nx/rveB1va4Q6iGyOJBud8m7aCCMbNiz9Irb6qDfKTOs30PF3XEE9zfs1J9bDJYCq\niLMrSfPlCPVLj7uGGBZylKmKZNuurYmL3BZX+YUpmfMed+UMuMQw7yNhw2bj3E0z\nlKp4uzwi0kbQQUdFNIQrbOyPiNoHVq0YfhgcEqu5HfmxENtLEQk+9xgYkZSyl8++\nKyn2fVQ2IrVcaLRBaH/1xjl3l7tx7kmH3KDWl4Hup9L3JOcPH6CrtqR+SlwNGjUo\nw6X7d4xPeESB0FGWs/8=\n-----END CERTIFICATE-----\n",
-          "key": "$aes$fsDjVJ1bVJQ8=$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",
+          "certificate": "-----BEGIN CERTIFICATE-----\nMIIDmTCCAoGgAwIBAgIUft7mX2U2KYwAO5AWqZIo7QUpx70wDQYJKoZIhvcNAQEL\nBQAwLTEVMBMGA1UEChMMY29udGFpbmVybGFiMRQwEgYDVQQDEwsyc3JsIGxhYiBD\nQTAeFw0yMzA1MDExNDA3MDBaFw0yNDA0MzAxNDA3MDBaMC4xFTATBgNVBAoTDGNv\nbnRhaW5lcmxhYjEVMBMGA1UEAxMMc3JsMS4yc3JsLmlvMIIBIjANBgkqhkiG9w0B\nAQEFAAOCAQ8AMIIBCgKCAQEA1i5faHAZUKcNKPTL1U94XjKzkdM4w5baKu9hpu90\nT/OB8+l8c37R4Iid7oDj+pqzHg0kqDOzPx+ngqOnxxrN+AswV09EYEbjsn+1180b\nlK4BSZGiUui+4Lk6Nw90Wh5Mg2CIr/3NOIF6I2qzvzsXc7tAdJPd8b/3n6c+3hy2\nrdNnjNfOPFm7X6SO5M9dzOyG331xXqIAomWEh4ueT7PKt4SnWm2oyEY4oxhuKw67\n3UIgkkAyOwsLH1PUHq8t9OHQrNXeJdmHYafJTLORbo0gXuwzYp+uAhvRr/E57V2n\nHGZTHkx3i8GG1dAR5tEz+hAeybDMaq7UiRK8gsPzywD8swIDAQABo4GvMIGsMA4G\nA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYIKwYBBQUHAwIwDAYD\nVR0TAQH/BAIwADAdBgNVHQ4EFgQU9xXO016NrEhaB1bJH7UiT6n4FDAwHwYDVR0j\nBBgwFoAUyedF1Wu8XNAxjcsAWIDDTUDJvEgwLQYDVR0RBCYwJIIEc3JsMYIOY2xh\nYi0yc3JsLXNybDGCDHNybDEuMnNybC5pbzANBgkqhkiG9w0BAQsFAAOCAQEAOPqg\nLLm9HVdG3wEfvgzdzkl0ERR1rsJdMves2MoqHeJV0gWMXdQ/cvOx00pJg1B3qrtY\nDbRA8Tx8fUb0WTfFTiLLmPAk+2josa4GgeKvV4ZhwROI4lJqm2Mwlzd55fyAcuTJ\nHdQNs2rF6gDqessZb+XOVj+OVpveBggS63X7ckpS1Ne4vRp4PazUtNXxOEw43iFS\nMP2/mSjkWeFmlAvy+qgeDq5iuzxqXSQif/ADTK7KyN+y8PknHFJgUEQDJsoPFQPq\nl73RbEh2l0Q7mseRXIzI8U63vzq65PB+/omrALyOvLGRTV3BEtRg3Py2cBfhv3JQ\nhAFdSqda2/dTYyXqPQ==\n-----END CERTIFICATE-----",
+          "key": "$aes$eiHMRZA4ZVKM=$MixaMSzGGgOTOiUD5A+aeeZbBWggtTorSP3HRdzGQsV1VBRx77VxB+LQGd9nzo8UjLO6tNc2+2Oyix8c58zjDx4Za0nr0c20Udf1Noi9VJxRHeI5JJC31nw/bQf+VPb/14JKIw/jJudkfIxB65dyYBHVawBg2fg/SEYhX9aBNzl9YnQI5XpANbLNo21CAOH14fblEWd51AWWM9Al+OPuCFd5A1+UH3ITBUDsQSwpp2gfteTh4nVJMgtKL4wlg/3LC29fgRnnziholyWOekI6f6i+U/m2lqXLGkH3+KePtglHo9PyrcuRgs60z4ey7vdgDTRn/LlhSQl2TqkaPc1O+j2II8QIrVHNpU3DkUyMRlJ6EIlCyKAy9GNd5Hx4AzjbmKah32MqLparlv9nXZ0NgbRzwaclA159XUsV4iunRO0eqcVM4g1TEUkY44U8fw8H6lJjqNuqK0qUk2qwR8YiOODvP3sG9+xDKVriXKYIGPbj3bJrhIrT9+XY+3MMw5YbwQ+VxKytvImRSJVTfczfZsluv8NpL7n0YghecpZncHiU7wNAaKrcmxAZ1snLlG1EXd2jXb5NS+3h5BdoiX5A4VZl02cCNkpcCSbugt8i4xBcFtvHIHV7jyzcwveOM6FtjrTQP0V1wssU9gh0W3CqduURDOpV87dkd+PiEfov068swPDENFFVpyBEplCDJZwDaybCYVCJp1Q5/TfF8eIJK+lBtZoCorA0lbl8YGXFvHVl9YA3HRKdAnpPQTGuHSS43rmX0bfW1v5ySRIrkmafzSetC/0I2CabBUu1NpYuEuS5AqF3jdpTDP/HdbBRrWycG6jKqrIph6rGl9u1HF+XVXbaghT64MmRsaxcPfbZWMM7qiCAKuooKyt1HarGYfBBaWAYmAl0gBxDuATmYlXEbZz3shqW7+fKOJcmz3t2EWZGClYPzxs4euRw9x1NkO0hRBSOa/ruQMN4XmF5cpu3zNS/wGxqJcpFBKyywvSNqpCQ6EZjsBes4qNAmKDcKNRNTkjI4xeasBpvPHsaRjJ93MZwB9unAajYv0mN0hQNgiVhPgtZAkWOVjFvSOq2ypV3qcIuGrOQYCD3DsAjkRm9QaMwIcm3OnuOH7Q8NjiApIJ0e8WRwwQDyq7sVk6Ja9SFyPwiQVWR2JojaywXYcGrL3WGQUUjy0OhO90LCTLRHtIzA+HYawkKE1h7h4vvdvGcCfX2gksqH/LuXNVn5TsjELda9X9bbmGaL1F+1vlupHfi428dPAYkyHhiN8pJjETCDWE7dup1IYFXqR+W2PS6L0UyC8QNuswZCqtk5xXtnh8dWQu0qRmVOfyR6Y3vDcfwv7m4N3hTXt8MEfmJ9XQ+s3n/xZkTn708P5oImxyAkiUdV01h9GxuUEel54es2ZP8LITZvapG0Vs7HH/KNKd/DnqKoXW+E8i5nRFkyqrZMOLvlyJcZBNvFE0bvcecpccLMEfGhInzJ1sdb+gbGrOlnsh18/WrxIB5U5w+7pKHLJvaOLJjvsyZVdmBfVB808PY2kKG7nLP1PiH5uxVyLIekOnVlrbnJY+HQcBJGDbp5jgPbF1Vn/Gd3YuQrnKXRELdyXzmIB96V86TSUhRSNQu3BkfImJdd/MZl202CuRkP6JRueJrLYngR/MWVibtaaRf4lWHw6AMmnJIjYLpRDBwNqf9pU6245gtYSi29h0BWMnVWdXwBs7USf1chWs5KI6CP2In2WzWxBO6trwbxiQfk4xtH1WS3wIWTU0nxD3yNExi63Y6X9H0oohCdK+eRvTKhkhepePo7iXa/ciTJ2IPOmmMIbqYC9ZJrtKTly68wyMMFvy+f1ZnwkdzYEupltooXPfWMU+cQWUrO0o6gUkjgB8vK/Zn24BokXFpcAQGtOqPxtr7um/kgk3vvYzGzGaf9H0FJ7x0DCr/BRfFyxwAMOVy/Ro7apZhUedZP8JdPQFGdsJzrjC/moJfTEcdXhQurBeYRY+gIVLPZh5AnlbentTwXihaZpsJUABt2pNg2LBmIixXXFV4V8HkwMw7Iv0snXASqItsTM5h9H7WUjDJyeVOpWjbnQCeQSI/WPlwW/JIy7xxSGoG87Tb0Upy9D/CGdPBxTEGIHBCFRtdPJdNBTTzHingcukSOE5YMdHTuKL3GCHN0YBeISSTcMuIQNLdPx+ec4mfy1128Jej9cPJUleZ03NTxVvggoAt2pYCXklmB2UR/zpQE+7vEZHUeXIb",
           "name": "clab-profile"
         }
       ]
